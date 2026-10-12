@@ -25,3 +25,26 @@ $('stream').onclick=()=>{const active=document.body.classList.toggle('stream');$
 $('shopping').onclick=()=>$('shopping-dialog').showModal();$('shopping-dialog').querySelector('.close').onclick=()=>$('shopping-dialog').close();
 async function exportImage(){const button=$('export');button.disabled=true;button.textContent='מכינה תמונה…';try{const loaded=await Promise.all(items.map((_,id)=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('image'));img.src=`assets/food-${id}.jpg`;})));const width=1600,cardW=118,gap=10,labelW=220,columns=10;const heights=tiers.map(([key])=>Math.max(126,Math.ceil(state[key].length/columns)*118+16));const poolH=state.pool.length?180:0;const canvas=document.createElement('canvas');canvas.width=width;canvas.height=140+heights.reduce((a,b)=>a+b,0)+poolH+50;const ctx=canvas.getContext('2d');ctx.fillStyle='#141116';ctx.fillRect(0,0,width,canvas.height);ctx.direction='rtl';ctx.textAlign='right';ctx.fillStyle='#c5a1ff';ctx.font='bold 45px Arial';ctx.fillText('טועמים את הבלתי אפשרי.',1550,65);ctx.fillStyle='#aaa1b3';ctx.font='22px Arial';ctx.fillText('הטיר ליסט של ניקה',1550,108);let y=140;function drawCard(id,x,yy){ctx.drawImage(loaded[id],x,yy,cardW,80);ctx.fillStyle='#28212e';ctx.fillRect(x,yy+80,cardW,30);ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText(items[id],x+cardW/2,yy+99,cardW-8);ctx.textAlign='right';}tiers.forEach(([key,name,color],row)=>{const h=heights[row];ctx.fillStyle='#201b25';ctx.fillRect(20,y,width-40,h-2);ctx.fillStyle=color;ctx.fillRect(width-labelW-20,y,labelW,h-2);ctx.fillStyle='#19151b';ctx.textAlign='center';ctx.font='bold 46px Arial';ctx.fillText(key,width-labelW/2-20,y+h/2-8);ctx.font='bold 18px Arial';ctx.fillText(name,width-labelW/2-20,y+h/2+25,labelW-20);state[key].forEach((id,index)=>drawCard(id,width-labelW-40-cardW-(index%columns)*(cardW+gap),y+8+Math.floor(index/columns)*118));y+=h;});if(state.pool.length){ctx.fillStyle='#c5a1ff';ctx.textAlign='right';ctx.font='bold 22px Arial';ctx.fillText('עוד לא טעמתי',1550,y+35);state.pool.forEach((id,index)=>drawCard(id,1450-index*(cardW+gap),y+50));}canvas.toBlob(blob=>{if(!blob){button.disabled=false;button.textContent='↓ שמירת תמונה';return;}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='nika-food-tier-list.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);button.disabled=false;button.textContent='↓ שמירת תמונה';},'image/png');}catch{button.disabled=false;button.textContent='↓ שמירת תמונה';$('selected-status').textContent='תמונה לא נטענה. נסי שוב אחרי רענון.';}}
 $('export').onclick=exportImage;render();
+
+// Large food photo preview, outside the board so its edges never get clipped.
+const foodPreview=document.createElement('div');foodPreview.className='food-preview';foodPreview.hidden=true;foodPreview.setAttribute('aria-hidden','true');foodPreview.innerHTML='<img alt=""><span></span>';document.body.append(foodPreview);
+let previewId=null;
+function hideFoodPreview(){foodPreview.hidden=true;previewId=null;}
+function updateFoodPreview(e){
+ if(e.pointerType!=='mouse'||pointer){hideFoodPreview();return;}
+ const card=e.target.closest('.card');
+ if(!card||card.classList.contains('ghost')){hideFoodPreview();return;}
+ const id=Number(card.dataset.id);
+ if(previewId!==id){foodPreview.querySelector('img').src=`assets/food-${id}.jpg`;foodPreview.querySelector('span').textContent=items[id];previewId=id;}
+ foodPreview.hidden=false;
+ const width=foodPreview.offsetWidth,height=foodPreview.offsetHeight;
+ const x=e.clientX+24+width<=window.innerWidth-12?e.clientX+24:e.clientX-width-24;
+ foodPreview.style.left=Math.max(12,Math.min(x,window.innerWidth-width-12))+'px';
+ foodPreview.style.top=Math.max(12,Math.min(e.clientY-height/2,window.innerHeight-height-12))+'px';
+}
+ document.addEventListener('pointerover',updateFoodPreview);
+ document.addEventListener('pointermove',updateFoodPreview);
+ document.addEventListener('pointerdown',hideFoodPreview);
+ document.addEventListener('pointerout',e=>{if(e.target.closest('.card')&&!e.relatedTarget?.closest?.('.card'))hideFoodPreview();});
+ window.addEventListener('blur',hideFoodPreview);
+ window.addEventListener('scroll',hideFoodPreview,{passive:true});
