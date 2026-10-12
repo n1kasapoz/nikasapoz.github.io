@@ -50,7 +50,9 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  background: #070611;
+  background-image: radial-gradient(ellipse at 50% 18%, #171028 0%, #0b0919 48%, #05040d 100%);
+  background-attachment: fixed;
   color: var(--fg);
   font-family: var(--sans);
   font-size: 16px;
@@ -67,18 +69,109 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
+/* Night-sky background: moving rain and twinkling stars.
+   Only the decorative backdrop changes; page content stays untouched. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 15% 24%, rgba(126, 84, 190, 0.15), transparent 48%),
+    radial-gradient(ellipse at 85% 85%, rgba(64, 80, 171, 0.15), transparent 52%);
+}
+
 .bg-shape {
   position: fixed;
-  border-radius: 50%;
-  filter: blur(80px);
   z-index: 0;
-  opacity: 0.55;
+  border-radius: 0;
+  filter: none;
+  opacity: 1;
   pointer-events: none;
 }
 
-.bg-shape-1 { width: 380px; height: 380px; background: var(--shape-1); top: -80px; left: -100px; }
-.bg-shape-2 { width: 320px; height: 320px; background: var(--shape-2); bottom: 10%; right: -80px; }
-.bg-shape-3 { width: 280px; height: 280px; background: var(--shape-3); top: 40%; left: 30%; }
+/* Foreground rain: long luminous droplets actually translate downward. */
+.bg-shape-1 {
+  left: 0;
+  right: 0;
+  top: -240px;
+  bottom: auto;
+  width: 100%;
+  height: calc(100vh + 240px);
+  background-image:
+    radial-gradient(ellipse 1px 23px at 13px 18px, rgba(226, 228, 255, .52), transparent),
+    radial-gradient(ellipse 1px 16px at 42px 107px, rgba(194, 196, 250, .37), transparent),
+    radial-gradient(ellipse 1px 27px at 69px 185px, rgba(220, 220, 255, .48), transparent),
+    radial-gradient(ellipse 1px 18px at 91px 59px, rgba(192, 205, 255, .45), transparent),
+    radial-gradient(ellipse 1px 24px at 120px 154px, rgba(239, 234, 255, .51), transparent),
+    radial-gradient(ellipse 1px 14px at 149px 218px, rgba(198, 205, 255, .40), transparent),
+    radial-gradient(ellipse 1px 29px at 174px 83px, rgba(217, 221, 255, .43), transparent);
+  background-size: 190px 240px;
+  background-repeat: repeat;
+  animation: rain-near 1.5s linear infinite;
+  will-change: transform;
+}
+
+/* Distant, finer rain moves at a different speed for depth. */
+.bg-shape-2 {
+  left: 0;
+  right: 0;
+  top: -320px;
+  bottom: auto;
+  width: 100%;
+  height: calc(100vh + 320px);
+  background-image:
+    radial-gradient(ellipse .8px 15px at 9px 70px, rgba(215, 221, 255, .27), transparent),
+    radial-gradient(ellipse .8px 19px at 53px 228px, rgba(199, 218, 255, .30), transparent),
+    radial-gradient(ellipse .8px 12px at 80px 148px, rgba(235, 221, 255, .25), transparent),
+    radial-gradient(ellipse .8px 24px at 109px 292px, rgba(211, 216, 255, .28), transparent),
+    radial-gradient(ellipse .8px 14px at 147px 19px, rgba(221, 222, 255, .30), transparent),
+    radial-gradient(ellipse .8px 18px at 180px 185px, rgba(199, 215, 255, .22), transparent),
+    radial-gradient(ellipse .8px 12px at 222px 98px, rgba(237, 233, 255, .32), transparent),
+    radial-gradient(ellipse .8px 20px at 262px 255px, rgba(208, 222, 255, .23), transparent),
+    radial-gradient(ellipse .8px 14px at 298px 45px, rgba(234, 234, 255, .29), transparent);
+  background-size: 320px 320px;
+  background-repeat: repeat;
+  animation: rain-far 2.4s linear infinite;
+  will-change: transform;
+}
+
+/* A separate twinkling star field; no GIF or static rain illusion. */
+.bg-shape-3 {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle at 7% 12%, rgba(255, 255, 255, .92) 0 1px, transparent 2px),
+    radial-gradient(circle at 18% 43%, rgba(213, 200, 255, .9) 0 1.2px, transparent 2.4px),
+    radial-gradient(circle at 31% 9%, rgba(241, 242, 255, .86) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 26%, rgba(255, 255, 255, .8) 0 1.2px, transparent 2.5px),
+    radial-gradient(circle at 64% 7%, rgba(208, 206, 255, .88) 0 1px, transparent 2px),
+    radial-gradient(circle at 81% 32%, rgba(255, 255, 255, .96) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 94% 11%, rgba(216, 211, 255, .84) 0 1px, transparent 2px),
+    radial-gradient(circle at 11% 77%, rgba(255, 255, 255, .92) 0 1.2px, transparent 2.6px),
+    radial-gradient(circle at 26% 92%, rgba(211, 198, 255, .84) 0 1px, transparent 2px),
+    radial-gradient(circle at 42% 68%, rgba(250, 248, 255, .86) 0 1.4px, transparent 2.9px),
+    radial-gradient(circle at 61% 88%, rgba(233, 222, 255, .92) 0 1px, transparent 2px),
+    radial-gradient(circle at 77% 59%, rgba(255, 255, 255, .84) 0 1.3px, transparent 2.6px),
+    radial-gradient(circle at 92% 81%, rgba(210, 211, 255, .93) 0 1px, transparent 2px);
+  background-repeat: no-repeat;
+  animation: stars-twinkle 3.7s ease-in-out infinite alternate;
+}
+
+@keyframes rain-near {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, 240px, 0); }
+}
+@keyframes rain-far {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, 320px, 0); }
+}
+@keyframes stars-twinkle {
+  from { opacity: .30; }
+  to   { opacity: 1; }
+}
 
 .container {
   width: 100%;
@@ -264,4 +357,19 @@ a { color: inherit; text-decoration: none; }
 :root.scheme-dark .link-button.link-latest {
   border-color: rgba(255, 255, 255, 0.18);
   box-shadow: 0 8px 32px rgba(56, 197, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+
+/* Readable existing cards over the new dark background, in every OS theme. */
+:root:not(.scheme-light), :root.scheme-light, :root.scheme-dark {
+  --fg: #f5f2ff;
+  --muted: #c4bdd8;
+  --glass-bg: rgba(24, 21, 44, .68);
+  --glass-border: rgba(209, 196, 255, .22);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, .42);
+  --hover-bg: rgba(60, 50, 98, .75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-shape-1, .bg-shape-2, .bg-shape-3 { animation: none !important; }
 }
