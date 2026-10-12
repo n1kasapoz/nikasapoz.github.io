@@ -359,17 +359,7 @@ body::before {
   box-shadow: 0 8px 32px rgba(56, 197, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
-
-/* Readable existing cards over the new dark background, in every OS theme. */
-:root:not(.scheme-light), :root.scheme-light, :root.scheme-dark {
-  --fg: #f5f2ff;
-  --muted: #c4bdd8;
-  --glass-bg: rgba(24, 21, 44, .68);
-  --glass-border: rgba(209, 196, 255, .22);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, .42);
-  --hover-bg: rgba(60, 50, 98, .75);
-}
-
+/* Don't animate the decorative weather layers for reduced-motion users. */
 @media (prefers-reduced-motion: reduce) {
   .bg-shape-1, .bg-shape-2, .bg-shape-3 { animation: none !important; }
 }
