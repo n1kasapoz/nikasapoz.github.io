@@ -1,0 +1,31 @@
+name: Create Nikasapoz short link (one time)
+on:
+  push:
+    paths:
+      - .github/workflows/create-short-link-once.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  create-short-link:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Create a short redirect to the links page
+        shell: bash
+        run: |
+          set -euo pipefail
+          destination="https://nikaaaaaw.github.io/nikasapoz.github.io/links/"
+          for slug in Nikasapoz NikasapozLinks NikasapozLive; do
+            echo "Trying is.gd/$slug"
+            response="$(curl --connect-timeout 10 --max-time 20 -sS -G               --data-urlencode "format=json"               --data-urlencode "url=$destination"               --data-urlencode "shorturl=$slug"               "https://is.gd/create.php" || true)"
+            echo "Shortener response: $response"
+            if RESPONSE="$response" python3 -c 'import json,os,sys; x=json.loads(os.environ["RESPONSE"]); sys.exit(0 if x.get("shorturl") else 1)' ; then
+              echo "CREATED_SHORT_LINK=$(RESPONSE="$response" python3 -c 'import json,os; print(json.loads(os.environ["RESPONSE"])["shorturl"])')"
+              exit 0
+            fi
+          done
+          echo "No confirmed shortened link was created."
+          exit 1
